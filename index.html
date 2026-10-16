@@ -360,7 +360,7 @@
     <div class="intro-header">
       <h1>Meet the Sprint Cohort</h1>
     </div>
-    <p>Explore the participants and teams taking part in this Sprint. Click a dot to see who that participant is and how to connect with them. Some dots represent more than one person — use the + to zoom in and reveal members that may be layered underneath. You can also filter by team to see just one cohort's participants at a time.</p>
+    <p>Explore the participants and teams taking part in this Sprint. Click a dot to see who that participant is and how to connect with them. Some dots represent more than one person — use the + to[...]</p>
   </section>
 
   <section class="summary" id="summary" aria-label="Cohort summary">
@@ -699,6 +699,7 @@ function selectMember(id) {
   refreshAllStyles();
   renderPanel();
   document.getElementById("panel").focus({ preventScroll: true });
+}
 
 function renderPanel() {
   const panel = document.getElementById("panel");
@@ -789,7 +790,8 @@ function renderList() {
         <div class="list-meta">${members.length} participant${members.length === 1 ? "" : "s"}</div>
         ${members.map(m => `
           <div class="participant-card">
-            <div class="p-name">${m.name}${m.isLead ? " (Team Lead)" : ""}${m.team ? ` <span class="p-team">· ${m.team}</span>` : ""}</div>            <div class="p-role">${[m.jobTitle, m.org].filter(Boolean).join(" · ")}</div>
+            <div class="p-name">${m.name}${m.isLead ? " (Team Lead)" : ""}${m.team ? ` <span class="p-team">· ${m.team}</span>` : ""}</div>
+            <div class="p-role">${[m.jobTitle, m.org].filter(Boolean).join(" · ") || ""}</div>
             ${m.profileUrl ? `<a href="${m.profileUrl}" target="_blank" rel="noopener noreferrer" aria-label="View ${m.name}'s profile (opens in new tab)">View profile</a>` : ""}
           </div>
         `).join("")}
