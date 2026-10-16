@@ -681,6 +681,19 @@ function renderMap() {
     shape.addTo(layerGroup);
     markerById[m.id] = shape;
   });
+
+  // Ensure each team's lead marker is on top by bringing it to front after
+  // all markers are added. This makes the lead the default visible dot for
+  // its team when markers overlap or are jittered.
+  Object.keys(TEAM_COLORS).forEach(team => {
+    const teamMembers = membersForTeam(team).filter(m => markerById[m.id]);
+    if (!teamMembers.length) return;
+    const lead = teamMembers.find(m => m.isLead) || teamMembers[0];
+    const leadMarker = markerById[lead.id];
+    if (leadMarker && typeof leadMarker.bringToFront === 'function') {
+      leadMarker.bringToFront();
+    }
+  });
 }
 
 function refreshAllStyles() {
