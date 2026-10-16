@@ -495,6 +495,7 @@ function rowsToMembers(rows) {
       org: (r["Organization"] || "").toString().trim(),
       jobTitle: (r["Job Title"] || "").toString().trim(),
       notes: (r["Notes"] || "").toString().trim(),
+      isLead: /^(yes|y|true|x)$/i.test((r["Team Lead"] || "").toString().trim()),
       center: [latRaw ? Number(latRaw) : NaN, lngRaw ? Number(lngRaw) : NaN]
     };
   }).filter(Boolean);
@@ -697,8 +698,7 @@ function selectMember(id) {
   state.highlightedTeam = null;
   refreshAllStyles();
   renderPanel();
-  document.getElementById("panel").focus();
-}
+  document.getElementById("panel").focus({ preventScroll: true });
 
 function renderPanel() {
   const panel = document.getElementById("panel");
@@ -716,7 +716,7 @@ function renderPanel() {
 
   if (m.team) {
     const teammates = membersForTeam(m.team);
-    html += `<div class="section-label">Sprint team</div><div>${m.team}</div>`;
+    html += `<div class="section-label">Sprint team</div><div>${m.team}${m.isLead ? " · <strong>Team Lead</strong>" : ""} </div>`; 
     if (teammates.length > 1) {
       html += `
         <div class="team-note">
@@ -789,8 +789,7 @@ function renderList() {
         <div class="list-meta">${members.length} participant${members.length === 1 ? "" : "s"}</div>
         ${members.map(m => `
           <div class="participant-card">
-            <div class="p-name">${m.name}${m.team ? ` <span class="p-team">· ${m.team}</span>` : ""}</div>
-            <div class="p-role">${[m.jobTitle, m.org].filter(Boolean).join(" · ")}</div>
+            <div class="p-name">${m.name}${m.isLead ? " (Team Lead)" : ""}${m.team ? ` <span class="p-team">· ${m.team}</span>` : ""}</div>            <div class="p-role">${[m.jobTitle, m.org].filter(Boolean).join(" · ")}</div>
             ${m.profileUrl ? `<a href="${m.profileUrl}" target="_blank" rel="noopener noreferrer" aria-label="View ${m.name}'s profile (opens in new tab)">View profile</a>` : ""}
           </div>
         `).join("")}
@@ -813,6 +812,15 @@ function bindEvents() {
       } else {
         map.setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
       }
+    }
+    if (state.team) {
+      const teamList = membersForTeam(state.team);
+      const lead = teamList.find(x => x.isLead) || teamList[0];
+      if (lead) selectMember(lead.id);
+    } else {
+      state.selectedId = null;
+      refreshAllStyles();
+      renderPanel();
     }
   });
   document.getElementById("btn-reset").addEventListener("click", () => {
